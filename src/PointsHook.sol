@@ -116,6 +116,8 @@ contract PointsHook is BaseHook, ERC20 {
         );
         if (referree == address(0)) return;
 
+        if (referrer == referree) return;
+
         if (referredBy[referree] == address(0) && referrer != address(0)) {
             referredBy[referree] = referrer;
             _mint(referrer, POINTS_FOR_REFERRAL);

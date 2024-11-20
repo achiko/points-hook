@@ -20,6 +20,8 @@ import {LiquidityAmounts} from "@uniswap/v4-core/test/utils/LiquidityAmounts.sol
 import "forge-std/console.sol";
 import {PointsHook} from "../src/PointsHook.sol";
 
+
+
 contract TestPointsHook is Test, Deployers {
     using CurrencyLibrary for Currency;
 
@@ -47,12 +49,19 @@ contract TestPointsHook is Test, Deployers {
         uint160 flags = uint160(
             Hooks.AFTER_ADD_LIQUIDITY_FLAG | Hooks.AFTER_SWAP_FLAG
         );
+
+        console.log("LOG ==> flags", flags);
+
+        
         deployCodeTo(
             "PointsHook.sol",
             abi.encode(manager, "Points Token", "TEST_POINTS"),
             address(flags)
         );
-
+        
+        console.log("LOG ====>>> ",  toHexString(bytes32(uint256(6))) );
+        console.log("LOG ====>>> address(flags)", address(flags));
+        
         // Deploy our hook
         hook = PointsHook(address(flags));
 
@@ -60,6 +69,10 @@ contract TestPointsHook is Test, Deployers {
         // These variables are coming from the `Deployers` contract
         token.approve(address(swapRouter), type(uint256).max);
         token.approve(address(modifyLiquidityRouter), type(uint256).max);
+
+        console.log("LOG ==> Swap Router", address(swapRouter));
+        console.log("LOG ==> Modify Liquidity Router", address(modifyLiquidityRouter));
+        console.log("LOG ==> Hook", address(hook));
 
         // Initialize a pool
         (key, ) = initPool(
@@ -214,5 +227,17 @@ contract TestPointsHook is Test, Deployers {
                 referrerPointsBalanceAfterAddLiquidity,
             2 * 10 ** 13
         );
+    }
+
+    function toHexString(bytes32 data) internal pure returns (string memory) {
+        bytes memory alphabet = "0123456789abcdef";
+        bytes memory str = new bytes(2 + data.length * 2);
+        str[0] = "0";
+        str[1] = "x";
+        for (uint i = 0; i < data.length; i++) {
+            str[2 + i * 2] = alphabet[uint(uint8(data[i] >> 4))];
+            str[3 + i * 2] = alphabet[uint(uint8(data[i] & 0x0f))];
+        }
+        return string(str);
     }
 }
